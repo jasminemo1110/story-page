@@ -167,7 +167,14 @@ There's an orange button **📸 导出截图** ("Export screenshots") in the top
 - `02-chapter-01.png` ... `0N-chapter-NN.png` — one per chapter (chapter title + narration + dialogue + note)
 - The last chapter PNG **also includes the footer** (date + byline + permanent attribution watermark) as the story's send-off
 
-Each PNG has a very faint diagonal watermark `Made with Story Page · by 茉白Jasmine` (5% opacity — practically invisible at normal viewing, only shows when zoomed in). It preserves attribution when content gets reshared without being intrusive.
+Each PNG has a very faint diagonal watermark (~8% opacity — practically invisible at normal viewing, only shows when zoomed in), two lines:
+
+```
+github：Story-page（JasmineMobai）
+全平台：茉白Jasmine
+```
+
+It preserves attribution when content gets reshared without being intrusive.
 
 **Save location**: Chrome / Edge open a native "Save as" dialog so you can choose the folder. Safari / Firefox use the browser's default download folder (or whatever your browser settings dictate).
 
