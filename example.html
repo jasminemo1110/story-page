@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title id="page-title">故事页</title>
+<style>
+:root{
+  --bg:#FAF7F2;
+  --paper:#FFFFFF;
+  --ink:#2A2620;
+  --ink-soft:#5A554C;
+  --muted:#9A9388;
+  --line:#EAE3D7;
+
+  --claude:#D97757;
+  --claude-soft:#F8E6DB;
+  --claude-deep:#B95E40;
+  --claude-tint:#FFF4EC;
+
+  --user:#F2EDE4;
+  --user-deep:#7A6E5A;
+
+  --note:#FFF8F2;
+  --note-line:#E8C9B4;
+
+  --r:14px;
+  --r-sm:8px;
+  --font:-apple-system,'PingFang SC','Noto Sans SC',sans-serif;
+  --font-serif:'Songti SC','Noto Serif SC',serif;
+
+  /* 字号缩放系数：1=原始大小，2=两倍（默认，适合手机阅读 / 视频截图）。
+     想再放大改成 2.5；觉得太大改 1.5 即可，全文同步生效。 */
+  --scale:2;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{background:var(--bg);color:var(--ink);font-family:var(--font);font-size:calc(15px * var(--scale));line-height:1.75;-webkit-font-smoothing:antialiased}
+.page{max-width:calc(780px * var(--scale));margin:0 auto;padding:calc(64px * var(--scale)) calc(28px * var(--scale)) calc(120px * var(--scale))}
+
+.cover{text-align:center;margin-bottom:calc(64px * var(--scale))}
+.cover-tag{display:inline-flex;align-items:center;gap:6px;padding:4px 12px;background:var(--claude-tint);color:var(--claude-deep);border-radius:999px;font-size:calc(12px * var(--scale));letter-spacing:.05em;margin-bottom:18px}
+.cover-tag .dot{width:6px;height:6px;border-radius:50%;background:var(--claude)}
+.cover h1{font-family:var(--font-serif);font-size:calc(42px * var(--scale));font-weight:600;letter-spacing:.02em;line-height:1.2;margin-bottom:14px;color:var(--ink)}
+.cover h1 .ac{color:var(--claude)}
+.cover h1 .vol{font-family:var(--font);font-size:calc(16px * var(--scale));color:var(--claude);font-weight:400;margin-left:10px;letter-spacing:.05em;vertical-align:middle}
+.cover .sub{color:var(--ink-soft);font-size:calc(15px * var(--scale))}
+.cover .meta{color:var(--muted);font-size:calc(12.5px * var(--scale));margin-top:10px;letter-spacing:.04em;white-space:nowrap;overflow:hidden}
+
+.chap{display:flex;align-items:baseline;gap:calc(14px * var(--scale));margin:calc(48px * var(--scale)) 0 calc(24px * var(--scale))}
+.chap.chap-stacked{flex-direction:column;align-items:flex-start;gap:calc(2px * var(--scale))}
+.chap-num{font-family:var(--font-serif);font-size:calc(13px * var(--scale));color:var(--claude);letter-spacing:.15em;flex-shrink:0}
+.chap-title{font-family:var(--font-serif);font-size:calc(22px * var(--scale));font-weight:600;line-height:1.3}
+
+.narrate{font-family:var(--font-serif);color:var(--ink-soft);font-size:calc(13px * var(--scale));line-height:1.9;padding:6px 4px;margin:calc(18px * var(--scale)) 0}
+.narrate::before{content:'｜';color:var(--claude);margin-right:8px;font-weight:600}
+
+.turn{display:flex;gap:calc(12px * var(--scale));margin:calc(18px * var(--scale)) 0;align-items:flex-start}
+.turn.user{flex-direction:row-reverse}
+.avatar{width:calc(34px * var(--scale));height:calc(34px * var(--scale));border-radius:50%;flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:calc(13px * var(--scale));font-weight:600}
+.avatar.claude{background:var(--claude);color:#fff}
+.avatar.claude svg{width:calc(20px * var(--scale));height:calc(20px * var(--scale))}
+.avatar.user{background:var(--user);color:var(--user-deep)}
+
+.bubble{max-width:calc(560px * var(--scale));padding:14px 18px;border-radius:var(--r);font-size:calc(14.5px * var(--scale));line-height:1.75}
+.turn.claude .bubble{background:var(--claude-tint);border:1px solid var(--claude-soft);color:var(--ink);border-top-left-radius:4px}
+.turn.user .bubble{background:var(--paper);border:1px solid var(--line);color:var(--ink);border-top-right-radius:4px}
+.bubble p+p{margin-top:8px}
+.bubble em{font-style:normal;color:var(--claude-deep);font-weight:500}
+
+.note{margin:calc(20px * var(--scale)) 0;padding:calc(14px * var(--scale)) calc(16px * var(--scale)) calc(12px * var(--scale));background:#EEF6FF;border:1px dashed #93C5FD;border-radius:var(--r-sm);color:#1E3A5F;font-size:calc(13px * var(--scale));line-height:1.7;position:relative}
+.note::before{content:'💡';position:absolute;top:calc(-14px * var(--scale));left:calc(10px * var(--scale));background:#EEF6FF;font-size:calc(20px * var(--scale));padding:0 calc(3px * var(--scale));line-height:1}
+
+.footer{margin-top:calc(80px * var(--scale));text-align:center;color:var(--muted);font-size:calc(12px * var(--scale));letter-spacing:.05em;line-height:1.9}
+.footer .by{color:var(--muted)}
+.footer .watermark{margin-top:calc(24px * var(--scale));font-size:calc(11px * var(--scale));color:var(--claude-deep)}
+a{color:var(--claude-deep);text-decoration:none;border-bottom:1px dashed var(--claude-soft)}
+
+/* 导出截图按钮 */
+.export-btn{position:fixed;top:16px;right:16px;z-index:9999;padding:8px 14px;font-size:13px;background:rgba(217,119,87,.9);color:#fff;border:none;border-radius:6px;cursor:pointer;font-family:var(--font);box-shadow:0 2px 8px rgba(0,0,0,.12);transition:background .15s}
+.export-btn:hover{background:rgba(217,119,87,1)}
+.export-btn:disabled{opacity:.6;cursor:wait}
+
+/* 打印场景：meta 用小字号 + 允许换行，确保不丢字；隐藏导出按钮 */
+@media print {
+  .cover .meta { font-size: 11px !important; white-space: normal !important; overflow: visible !important; }
+  .export-btn { display: none !important; }
+}
+</style>
+</head>
+<body>
+
+<script id="story-data" type="application/json">
+{
+  "cover_tag": "茉白Jasmine × Claude Code 共创",
+  "title": "{accent: \"故事页\"}{br}{accent: \"Story-Page\"}",
+  "subtitle": "记录每个 VibeCoding 产品的诞生",
+  "meta": "2026 年 5 月 · Claude Code Skill · 茉白的第一个开源产品",
+  "volume": null,
+  "chapter_start": 1,
+  "user_name": "茉",
+  "user_name_full": "茉白Jasmine",
+  "created_by": "茉白",
+  "closing": "故事讲到 2026 年 5 月 5 日 · 未完待续",
+  "chapters": [
+    {
+      "title": "故事页（story-page）的诞生",
+      "narrate": "作为一个代码0基础的纯文科生，我最近一个半月成功coding出了5个真正能用的产品，每个都切实满足了工作或生活的需求。朋友们看到分享纷纷来问：「怎么做的？能不能教教我？我也是不懂代码的文科生😭。」",
+      "turns": [
+        {
+          "who": "user",
+          "text": [
+            "我想把每个产品的诞生过程一步步讲出来，但每次开发对话都有上百轮——所以我想，去掉中间晦涩的代码和复杂的试错，只讲*最关键的决定和卡点*，把最核心的内容用对话形式拉出来排版好，生成一个精美的*故事页（story-page）*。",
+            "——能用它录视频，也能写公众号文章。"
+          ]
+        },
+        {
+          "who": "claude",
+          "text": [
+            "思路清晰。可以做一个html，编辑和使用都方便。*对话气泡 + 章节结构*，每章一个决策点——静止时能读，滚动时有层次。可以加旁白补背景，加批注放设计意图。"
+          ]
+        },
+        {
+          "who": "user",
+          "text": [
+            "UI用claude的配色，关键词高亮成橘色，视觉上统一。"
+          ]
+        }
+      ],
+      "note": "这一次，从想法到初步实现，只用了10分钟。"
+    },
+    {
+      "title": "变成一个可复用的 Skill",
+      "turns": [
+        {
+          "who": "user",
+          "text": [
+            "这我希望以后每做完一个项目，都能*一键生成*这样的故事页。类似这样不需要每次重新描述的需求，是不是适合做成 Claude Code *skill*？"
+          ]
+        },
+        {
+          "who": "claude",
+          "text": [
+            "没错。我来和你商量着写 SKILL.md ，定义触发规则和生成逻辑——以后在任何项目目录下输入 `/story`，它就会自动读代码、读对话记录，生成专属这个项目的故事页。"
+          ]
+        },
+        {
+          "who": "user",
+          "text": [
+            "还要支持*续集*——后续每次只讲新内容，不重复，章节序号要能接上。"
+          ]
+        },
+        {
+          "who": "claude",
+          "text": [
+            "明白。Vol.2、Vol.3，章节号一路往下数——一个项目就是一部连载。"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "让世界都能用",
+      "turns": [
+        {
+          "who": "user",
+          "text": [
+            "这个skill或许适合*开源*？希望所有想记录自己 vibecoding 故事的人都能用。"
+          ]
+        },
+        {
+          "who": "claude",
+          "text": [
+            "那就要把代码中「茉白」这种个人化的部分抽成参数，我再帮你写一份 README 和 LICENSE。"
+          ]
+        },
+        {
+          "who": "user",
+          "text": [
+            "还有——我希望*国际朋友*也能用。他们生成的故事页应该是全英文的，或是其他语种。README 也要加一份英文的。"
+          ]
+        },
+        {
+          "who": "claude",
+          "text": [
+            "那把语言规则改成「匹配项目主要语言」，硬编码的中文部分也抽成 JSON 字段。任何语言都能自然适配。"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "一键导出截图",
+      "turns": [
+        {
+          "who": "user",
+          "text": [
+            "做到这里突然想到——能不能加一个*一键导出图片*的功能？把封面、每章都一键拆成单独的 PNG 打包导出，便于剪辑视频/排版文章的时直接当素材用。"
+          ]
+        },
+        {
+          "who": "claude",
+          "text": [
+            "可以。让我在右上角加一个按钮，点一下就能把每个chapter拆成单独的图片、自动打包下载。"
+          ]
+        }
+      ],
+      "note": "从私人工具到开源项目，就是「把所有的『我』换成适配『任何人』」。"
+    },
+    {
+      "title": "用自己讲自己",
+      "turns": [
+        {
+          "who": "user",
+          "text": [
+            "那第一个故事页，就讲这个 skill 从 0 到诞生的过程吧？"
+          ]
+        },
+        {
+          "who": "claude",
+          "text": [
+            "*以自身为例*——是最诚实的测试，也是最好的开头。"
+          ]
+        }
+      ]
+    },
+    {
+      "title": "To be continued",
+      "narrate": "接下来，我会用这个 skill，把前面 5 个产品的故事，以及后面更多产品的故事，讲给你听。",
+      "turns": [
+        {
+          "who": "user",
+          "text": [
+            "*① 多语种精准字幕*——作为日语老师，我的日语课后续要上传YouTube，平台自动识别的字幕惨不忍睹。我coding了一个精准识别中日英三语的字幕脚本；顺手还做了「长视频按主题一键切多个短视频」的工具。",
+            "*② 本地记账「还能活多久」*——一个本地记账脚本，不但记录方便，支持灵活分类合并，按需导出图表，花超时AI还会骂你，数据全在本地非常安全。",
+            "*③ 自媒体选题工作台*——表格做选题太笨拙。我coding了一个工作台。能分类、分阶段记录选题、AI 能根据过往内容发散创意、发布后还能导入各平台数据做直观对比。",
+            "*④ 旅行信息汇总*—— 6 月我要和姐妹从世界各地飞意大利集合旅行。关于行程细节的讨论略散落在聊天各处很难找，于是我coding了一个汇总所有人行程的网页，AI 给当地攻略、嵌交互地图、调维基百科指哪打哪，还能多人协同编辑每天的日程、餐饮、住宿、门票等重要信息。",
+            "*⑤ 爸妈的自驾回忆录*——为热爱自驾的父母coding的地图，可以记录每次自驾路线，按长度和时间排序收藏或选择线路展示，点开城市还能显示当时的住宿/饮食/旅途高光时刻，还能一键导出经验帖。"
+          ]
+        },
+        {
+          "who": "claude",
+          "text": [
+            "每个产品都会有自己的故事页分享。欢迎关注",
+            "微信：Jasminemobai（注明来意）",
+            "国内：*茉白Jasmine*（公众号 / 视频号 / 小红书 / 抖音 / B站）",
+            "国际：*JasmineMobai*（YouTube / X）",
+            "github：jasminemo1110"
+          ]
+        },
+        {
+          "who": "user",
+          "text": [
+            "也希望听到你用这个skill分享的好故事。"
+          ]
+        }
+      ]
+    }
+  ]
+}
+</script>
+
+<div class="page" id="page"></div>
+
+<script>
+(function(){
+  const data = JSON.parse(document.getElementById('story-data').textContent);
+  document.getElementById('page-title').textContent = stripAccent(data.title);
+
+  const esc = s => s.replace(/[&<>]/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+  const fmtAccent = s => esc(s).replace(/\{accent:\s*"([^"]+)"\}/g, '<span class="ac">$1</span>').replace(/\{br\}/g, '<br>');
+  const fmtEm = s => esc(s).replace(/\*([^*]+)\*/g, '<em>$1</em>');
+
+  function stripAccent(s){ return (s||'').replace(/\{accent:\s*"([^"]+)"\}/g, '$1').replace(/\{br\}/g, ' '); }
+
+  // 视觉宽度：1 个汉字算 1，1 个 ASCII 字符算 0.5
+  function visualWidth(s){
+    let w = 0;
+    for (const ch of (s||'')) {
+      w += /[一-鿿　-〿＀-￯㐀-䶿]/.test(ch) ? 1 : 0.5;
+    }
+    return w;
+  }
+
+  const claudeLogo = `<svg viewBox="0 0 24 24" fill="none"><path d="M12 2 L13.8 9.2 L21 11 L13.8 12.8 L12 20 L10.2 12.8 L3 11 L10.2 9.2 Z" fill="#fff"/></svg>`;
+
+  function renderCover(){
+    const volBadge = (data.volume && data.volume > 1) ? ` <span class="vol">Vol.${data.volume}</span>` : '';
+    return `<div class="cover">
+      <span class="cover-tag">${esc(data.cover_tag || '我 × Claude Code 共创')}</span>
+      <h1>${fmtAccent(data.title)}${volBadge}</h1>
+      ${data.subtitle ? `<div class="sub">${esc(data.subtitle)}</div>` : ''}
+      ${data.meta ? `<div class="meta">${esc(data.meta)}</div>` : ''}
+    </div>`;
+  }
+
+  function renderChapter(c, idx){
+    const start = data.chapter_start || 1;
+    const num = String(idx + start).padStart(2,'0');
+    const stacked = visualWidth(c.title) > 10 ? ' chap-stacked' : '';
+    let html = `<div class="chap${stacked}">
+      <span class="chap-num">CHAPTER ${num}</span>
+      <span class="chap-title">${esc(c.title)}</span>
+    </div>`;
+    if (c.narrate) html += `<p class="narrate">${esc(c.narrate)}</p>`;
+    (c.turns||[]).forEach(t => html += renderTurn(t));
+    if (c.note) html += `<div class="note">${esc(c.note)}</div>`;
+    return html;
+  }
+
+  function renderTurn(t){
+    const isClaude = t.who === 'claude';
+    const avatar = isClaude
+      ? `<div class="avatar claude">${claudeLogo}</div>`
+      : `<div class="avatar user">${esc(data.user_name||'我')}</div>`;
+    const texts = Array.isArray(t.text) ? t.text : [t.text];
+    const paras = texts.map(p => `<p>${fmtEm(p)}</p>`).join('');
+    return `<div class="turn ${isClaude?'claude':'user'}">
+      ${avatar}
+      <div class="bubble">${paras}</div>
+    </div>`;
+  }
+
+  let html = renderCover();
+  (data.chapters||[]).forEach((c,i) => html += renderChapter(c,i));
+  html += `<div class="footer">
+    ${data.closing ? `<div>${esc(data.closing)}</div>` : ''}
+    ${data.created_by ? `<div class="by">Created by ${esc(data.created_by)}</div>` : ''}
+    <div class="watermark"><a href="https://github.com/jasminemo1110/story-page" target="_blank" rel="noopener">Made with story-page</a> · by 茉白Jasmine</div>
+  </div>`;
+  document.getElementById('page').innerHTML = html;
+
+  // meta 标签强制单行，超长自动缩字号直到塞下；打印 / 窗口变化时重新计算
+  function fitMeta(){
+    const metaEl = document.querySelector('.cover .meta');
+    if (!metaEl) return;
+    metaEl.style.fontSize = '';  // 先复位再测，避免越缩越小
+    const parent = metaEl.parentElement;
+    let fs = parseFloat(getComputedStyle(metaEl).fontSize);
+    while (metaEl.scrollWidth > parent.clientWidth && fs > 6) {
+      fs *= 0.95;
+      metaEl.style.fontSize = fs + 'px';
+    }
+  }
+  fitMeta();
+  window.addEventListener('resize', fitMeta);
+  window.addEventListener('beforeprint', fitMeta);
+  window.addEventListener('afterprint', fitMeta);
+
+  // ─────────────────────────────────────────────────────────
+  // 导出截图：封面 / 每章 / 页脚 各一张 PNG，带浅水印，打包成 zip
+  // ─────────────────────────────────────────────────────────
+  const exportBtn = document.createElement('button');
+  exportBtn.textContent = '📸 导出截图';
+  exportBtn.className = 'export-btn';
+  exportBtn.title = '导出封面 + 每章 + 页脚为 zip（含浅水印）';
+  exportBtn.onclick = exportAllSections;
+  document.body.appendChild(exportBtn);
+
+  let libsLoaded = false;
+  function loadLibs(){
+    if (libsLoaded) return Promise.resolve();
+    function loadScript(src){
+      return new Promise((res, rej) => {
+        const s = document.createElement('script');
+        s.src = src; s.onload = res; s.onerror = rej;
+        document.head.appendChild(s);
+      });
+    }
+    return Promise.all([
+      loadScript('https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js'),
+      loadScript('https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js'),
+    ]).then(() => { libsLoaded = true; });
+  }
+
+  function watermarkBg(){
+    const line1 = 'github：Story-page（JasmineMobai）';
+    const line2 = '全平台：茉白Jasmine';
+    const svg = `<svg xmlns="http://www.w3.org/2000/svg" width="780" height="300"><g transform="rotate(-25 390 150)" font-family="-apple-system, PingFang SC, sans-serif" font-size="16" fill="rgba(0,0,0,0.08)" letter-spacing="2" text-anchor="middle"><text x="390" y="138">${line1}</text><text x="390" y="166">${line2}</text></g></svg>`;
+    return `url("data:image/svg+xml;utf8,${encodeURIComponent(svg)}")`;
+  }
+
+  function collectSections(){
+    const page = document.getElementById('page');
+    const children = [...page.children];
+    const cover = children.find(c => c.classList.contains('cover'));
+    const footer = children.find(c => c.classList.contains('footer'));
+    const chaps = children.filter(c => c.classList.contains('chap'));
+    const sections = [];
+    if (cover) sections.push({ name: '01-cover', elements: [cover] });
+    chaps.forEach((chap, i) => {
+      const isLast = i === chaps.length - 1;
+      const elements = [];
+      let el = chap;
+      while (el) {
+        // 遇到下一个 .chap 就停。footer 只在「最后一章」收进来（与本章合并）
+        if (el !== chap && el.classList && el.classList.contains('chap')) break;
+        if (!isLast && el.classList && el.classList.contains('footer')) break;
+        elements.push(el);
+        el = el.nextElementSibling;
+      }
+      const idx = String(sections.length + 1).padStart(2, '0');
+      sections.push({ name: `${idx}-chapter-${String(i+1).padStart(2,'0')}`, elements });
+    });
+    // 没有章节时，footer 单独一张
+    if (footer && chaps.length === 0) {
+      const idx = String(sections.length + 1).padStart(2, '0');
+      sections.push({ name: `${idx}-footer`, elements: [footer] });
+    }
+    return sections;
+  }
+
+  function makeWrapper(elements){
+    const wrap = document.createElement('div');
+    wrap.style.cssText = `position:absolute;left:-99999px;top:0;width:calc(780px * var(--scale));padding:calc(48px * var(--scale)) calc(28px * var(--scale));background-color:var(--bg);background-image:${watermarkBg()};background-repeat:repeat;box-sizing:border-box;`;
+    elements.forEach(e => wrap.appendChild(e.cloneNode(true)));
+    return wrap;
+  }
+
+  async function captureBlob(elements){
+    const wrap = makeWrapper(elements);
+    document.body.appendChild(wrap);
+    try {
+      const canvas = await window.html2canvas(wrap, {
+        scale: 2, backgroundColor: null, useCORS: true, logging: false
+      });
+      return await new Promise(res => canvas.toBlob(res, 'image/png'));
+    } finally { wrap.remove(); }
+  }
+
+  function sanitize(s){
+    return ((s || '').replace(/[\\\/:*?"<>|]/g, '').trim().slice(0, 50)) || 'story';
+  }
+
+  function downloadBlob(blob, filename){
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = filename; a.click();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+  }
+
+  async function exportAllSections(){
+    exportBtn.disabled = true;
+    exportBtn.textContent = '加载工具…';
+    try { await loadLibs(); }
+    catch { exportBtn.textContent = '⚠️ 网络错误'; setTimeout(reset, 3000); return; }
+
+    const sections = collectSections();
+    const zip = new window.JSZip();
+    try {
+      for (let i = 0; i < sections.length; i++){
+        exportBtn.textContent = `生成中 ${i+1}/${sections.length}…`;
+        const blob = await captureBlob(sections[i].elements);
+        zip.file(`${sections[i].name}.png`, blob);
+      }
+    } catch (e) {
+      console.error(e);
+      exportBtn.textContent = '⚠️ 截图失败';
+      setTimeout(reset, 3000); return;
+    }
+
+    exportBtn.textContent = '打包中…';
+    const zipBlob = await zip.generateAsync({ type: 'blob' });
+    const baseName = sanitize(stripAccent(data.title));
+    const filename = `${baseName}-screenshots.zip`;
+
+    // 现代浏览器：弹出系统级"另存为"对话框；老浏览器降级为标准下载
+    if (window.showSaveFilePicker) {
+      try {
+        const handle = await window.showSaveFilePicker({
+          suggestedName: filename,
+          types: [{ description: 'ZIP archive', accept: {'application/zip': ['.zip']} }]
+        });
+        const writable = await handle.createWritable();
+        await writable.write(zipBlob);
+        await writable.close();
+        exportBtn.textContent = '✓ 已保存';
+      } catch (e) {
+        if (e.name === 'AbortError') exportBtn.textContent = '已取消';
+        else { downloadBlob(zipBlob, filename); exportBtn.textContent = '✓ 已下载'; }
+      }
+    } else {
+      downloadBlob(zipBlob, filename);
+      exportBtn.textContent = '✓ 已下载';
+    }
+    setTimeout(reset, 3000);
+    function reset(){ exportBtn.textContent = '📸 导出截图'; exportBtn.disabled = false; }
+  }
+})();
+</script>
+</body>
+</html>

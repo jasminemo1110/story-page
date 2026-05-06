@@ -1,0 +1,9 @@
+# macOS
+.DS_Store
+
+# Editor caches
+.vscode/
+.idea/
+
+# Local generated story pages (story.html / story-2.html etc.) — not part of the skill itself
+# Users running /story produce these for their own projects, not for this repo
