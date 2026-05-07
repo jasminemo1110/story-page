@@ -80,9 +80,12 @@ a{color:var(--claude-deep);text-decoration:none;border-bottom:1px dashed var(--c
 .export-btn:hover{background:rgba(217,119,87,1)}
 .export-btn:disabled{opacity:.6;cursor:wait}
 
-/* 打印场景：meta 用小字号 + 允许换行，确保不丢字；隐藏导出按钮 */
+/* 打印场景：meta 用小字号 + 允许换行；标题字号自适应（容器宽度 ÷ 字数），最大不超过屏幕字号，确保单行；屏蔽手动 {br}；隐藏导出按钮 */
 @media print {
+  .cover { container-type: inline-size; }
   .cover .meta { font-size: 11px !important; white-space: normal !important; overflow: visible !important; }
+  .cover h1 { font-size: min(calc(42px * var(--scale)), calc(95cqw / var(--title-chars, 10))) !important; }
+  .cover h1 br { display: none !important; }
   .export-btn { display: none !important; }
 }
 </style>
@@ -227,6 +230,14 @@ a{color:var(--claude-deep);text-decoration:none;border-bottom:1px dashed var(--c
   window.addEventListener('resize', fitMeta);
   window.addEventListener('beforeprint', fitMeta);
   window.addEventListener('afterprint', fitMeta);
+
+  // 标题打印自适应：把字数作为 CSS 变量传给 @media print 里的 calc 公式
+  // CSS 会根据打印时 .cover 的实际容器宽度算出 单行字号 = 95cqw / 字数，
+  // 上限是屏幕字号（calc(42px * scale)）。短标题保持满血、长标题平滑缩小。
+  document.documentElement.style.setProperty(
+    '--title-chars',
+    visualWidth(stripAccent(data.title).replace(/\s+/g, ''))
+  );
 
   // ─────────────────────────────────────────────────────────
   // 导出截图：封面 / 每章 / 页脚 各一张 PNG，带浅水印，打包成 zip
