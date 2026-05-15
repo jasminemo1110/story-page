@@ -139,6 +139,7 @@ Default falls back to Chinese (since the skill was authored in a Chinese context
 ```
 story-page/
 ├── SKILL.md         # Instructions for Claude (generation rules, chapter selection, dialogue voice)
+├── CLAUDE.md        # Maintenance notes: gotchas when modifying this skill (hidden couplings, porting)
 ├── template.html    # The story page template — all styling lives here
 ├── example.html     # Real example: the author's journey from zero code to 5 products + this skill's birth
 ├── preview.png      # The hero image at the top of this README
@@ -146,6 +147,8 @@ story-page/
 ├── README.en.md     # English documentation
 └── LICENSE          # MIT License
 ```
+
+> Planning to fork or modify this skill? Read [`CLAUDE.md`](CLAUDE.md) first — it documents a few non-obvious gotchas (e.g. the schema lives in three places, what to change when porting to another agent).
 
 ---
 
